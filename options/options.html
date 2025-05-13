@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TOTP Options</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <h1>Backup & Restore</h1>
+
+  <div class="section">
+    <h2>Backup</h2>
+    <p>Download all your TOTP entries as a JSON file. Keep this file safe!</p>
+    <button id="backupBtn">Backup Entries</button>
+  </div>
+
+  <div class="section">
+    <h2>Restore</h2>
+    <p>Restore entries from a previously backed-up JSON file. This will overwrite existing entries.</p>
+    <input type="file" id="restoreFile" accept=".json">
+    <button id="restoreBtn">Restore Entries</button>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

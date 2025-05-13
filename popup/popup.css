@@ -1,0 +1,129 @@
+body {
+  font-family: sans-serif;
+  width: 350px;
+  padding: 10px;
+  background-color: #f9f9f9;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+}
+
+h1 {
+  font-size: 1.2em;
+  margin: 0;
+}
+
+#addEntryBtn {
+  font-size: 1.5em;
+  padding: 0 8px;
+  cursor: pointer;
+}
+
+.entry {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.entry-info {
+  margin-bottom: 5px;
+}
+
+.entry-info .domain {
+  font-weight: bold;
+  display: block;
+  color: #333;
+}
+
+.entry-info .username {
+  font-size: 0.9em;
+  color: #666;
+  display: block;
+}
+
+.entry-code {
+  text-align: center;
+  margin: 8px 0;
+}
+
+.totp-code {
+  font-size: 1.8em;
+  color: #007bff;
+  letter-spacing: 2px;
+  font-family: monospace;
+}
+
+.entry-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 5px;
+}
+
+.entry-actions button {
+  padding: 5px 10px;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+
+.entry-actions .fill-btn {
+  background-color: #28a745;
+  color: white;
+  border-color: #28a745;
+}
+
+.entry-actions .edit-btn {
+  background-color: #ffc107;
+  color: black;
+  border-color: #ffc107;
+}
+
+#editEntryView label {
+  display: block;
+  margin-top: 10px;
+  font-size: 0.9em;
+}
+
+#editEntryView input[type="text"],
+#editEntryView input[type="hidden"] {
+  width: calc(100% - 12px);
+  padding: 5px;
+  margin-top: 2px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+
+#editEntryView button {
+  padding: 8px 15px;
+  margin-top: 15px;
+  cursor: pointer;
+  border-radius: 3px;
+  border: 1px solid #ccc;
+}
+
+#saveEntryBtn {
+  background-color: #007bff;
+  color: white;
+}
+
+.delete-btn, #deleteEntryBtn {
+  background-color: #dc3545;
+  color: white;
+  border-color: #dc3545;
+}
+
+.footer {
+  margin-top: 15px;
+  text-align: center;
+  font-size: 0.9em;
+}

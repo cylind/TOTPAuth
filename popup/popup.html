@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TOTP Authenticator</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="header">
+    <h1>TOTP Codes</h1>
+    <button id="addEntryBtn" title="Add New Entry">+</button>
+  </div>
+  <div id="entriesList">
+    </div>
+
+  <div id="editEntryView" class="view" style="display:none;">
+    <h2>Edit/Add Entry</h2>
+    <input type="hidden" id="entryId">
+    <label for="secret">Secret:</label>
+    <input type="text" id="secret" required placeholder="e.g., JBSWY3DPEHPK3PXP"><br>
+    <label for="domain">Domain:</label>
+    <input type="text" id="domain" required placeholder="e.g., google.com"><br>
+    <label for="username">Username:</label>
+    <input type="text" id="username"><br>
+    <button id="saveEntryBtn">Save</button>
+    <button id="deleteEntryBtn" class="delete-btn" style="display:none;">Delete</button>
+    <button id="cancelEditBtn">Cancel</button>
+  </div>
+
+  <div class="footer">
+    <a href="#" id="openOptionsLink">Backup/Restore</a>
+  </div>
+
+  <script src="../lib/otpauth.umd.min.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
