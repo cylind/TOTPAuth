@@ -11,7 +11,8 @@
     "background"      // If using background script for auto-sync
   ],
   "host_permissions": [
-    "https://*.pages.dev/*" // <-- ADD THIS! Replace with your URL
+  "https://*.pages.dev/*",
+  "https://*.workers.dev/*"
   ],
   "action": {
     "default_popup": "popup/popup.html",
