@@ -7,7 +7,11 @@
     "storage",        // To store secrets, domains, usernames
     "activeTab",      // To get the current tab's URL
     "scripting",      // To inject scripts for autofill
-    "downloads"       // For the backup feature
+    "downloads",       // For the backup feature
+    "background"      // If using background script for auto-sync
+  ],
+  "host_permissions": [
+    "https://*.pages.dev/*" // <-- ADD THIS! Replace with your URL
   ],
   "action": {
     "default_popup": "popup/popup.html",
@@ -24,7 +28,7 @@
     "128": "icons/icon128.png"
   },
   "background": {
-    "service_worker": "background.js" // Optional, can be used for some tasks
+    "service_worker": "background.js" // Make sure background script is registered
   },
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self';"

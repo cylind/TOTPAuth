@@ -80,4 +80,148 @@ document.addEventListener('DOMContentLoaded', () => {
 
     reader.readAsText(file);
   });
+    // --- Worker Sync Elements ---
+  const workerUrlInput = document.getElementById('workerUrl');
+  const apiTokenInput = document.getElementById('apiToken');
+  const workerEnableAutoBackupInput = document.getElementById('workerEnableAutoBackup');
+  const saveWorkerConfigBtn = document.getElementById('saveWorkerConfigBtn');
+  const backupWorkerBtn = document.getElementById('backupWorkerBtn');
+  const restoreWorkerBtn = document.getElementById('restoreWorkerBtn'); // Renamed
+  const workerStatus = document.getElementById('workerStatus'); // Renamed
+
+  const WORKER_CONFIG_KEY = 'workerConfig';
+
+  // --- Load Worker Config ---
+  async function loadWorkerConfig() {
+    const result = await chrome.storage.local.get(WORKER_CONFIG_KEY);
+    if (result.workerConfig) {
+      workerUrlInput.value = result.workerConfig.url || '';
+      apiTokenInput.value = result.workerConfig.token || ''; // Again, careful with displaying secrets
+      workerEnableAutoBackupInput.checked = result.workerConfig.enableAutoBackup || false;
+      console.log('Worker Config loaded (Token hidden in console)');
+    }
+  }
+
+  // --- Save Worker Config ---
+  saveWorkerConfigBtn.addEventListener('click', async () => {
+    const config = {
+      url: workerUrlInput.value.trim(),
+      token: apiTokenInput.value.trim(), // Store the token locally (accep the risk or find more secure ways)
+      enableAutoBackup: workerEnableAutoBackupInput.checked,
+    };
+    if (!config.url || !config.token) {
+      workerStatus.textContent = '错误：请填写 Worker URL 和 API 令牌。';
+      workerStatus.style.color = 'red';
+      return;
+    }
+    // Basic URL validation
+    try {
+        new URL(config.url);
+    } catch (_) {
+        workerStatus.textContent = '错误：Worker URL 格式无效。';
+        workerStatus.style.color = 'red';
+        return;
+    }
+
+    await chrome.storage.local.set({ [WORKER_CONFIG_KEY]: config });
+    workerStatus.textContent = 'Worker 配置已保存。';
+    workerStatus.style.color = 'green';
+  });
+
+  // --- Helper: Fetch data from Worker ---
+  async function fetchWorker(endpoint, method = 'GET', body = null) {
+     const configResult = await chrome.storage.local.get(WORKER_CONFIG_KEY);
+     const config = configResult.workerConfig;
+     if (!config || !config.url || !config.token) {
+         throw new Error("Worker 配置不完整或未保存。");
+     }
+
+     const options = {
+         method: method,
+         headers: {
+             'X-API-Token': config.token, // Send token in header
+         },
+     };
+
+     if (body) {
+         options.headers['Content-Type'] = 'application/json';
+         options.body = JSON.stringify(body);
+     }
+
+     // Ensure URL ends with a slash before appending endpoint
+     const baseUrl = config.url.endsWith('/') ? config.url : config.url + '/';
+     const fullUrl = baseUrl + endpoint;
+
+     const response = await fetch(fullUrl, options);
+
+     if (!response.ok) {
+        let errorData;
+        try {
+            errorData = await response.json();
+        } catch (e) {
+            // If response is not JSON
+            errorData = { error: `HTTP error ${response.status}: ${response.statusText}`, details: await response.text() };
+        }
+        throw new Error(errorData.error || `HTTP error ${response.status}`);
+     }
+
+     // For GET requests that expect JSON response body
+     if (method === 'GET' && response.headers.get('Content-Type')?.includes('application/json')) {
+        return await response.json();
+     }
+      // For POST or other requests where success might just be 200 OK
+      if (response.headers.get('Content-Type')?.includes('application/json')) {
+         return await response.json(); // Return success message from worker if available
+      } else {
+         return { success: true }; // Assume success if response.ok and no JSON body
+      }
+  }
+
+  // --- Backup via Worker ---
+  backupWorkerBtn.addEventListener('click', async () => {
+    workerStatus.textContent = '正在备份 (通过 Worker)...';
+    workerStatus.style.color = 'orange';
+    try {
+      const entriesResult = await chrome.storage.local.get('entries');
+      const entries = entriesResult.entries || [];
+
+      const result = await fetchWorker('backup', 'POST', entries); // Send entries array as body
+      workerStatus.textContent = '成功备份 (通过 Worker)!';
+      workerStatus.style.color = 'green';
+      console.log("Worker backup response:", result);
+    } catch (error) {
+      console.error("Error backing up via Worker:", error);
+      workerStatus.textContent = `备份失败: ${error.message}`;
+      workerStatus.style.color = 'red';
+    }
+  });
+
+  // --- Restore via Worker ---
+  restoreWorkerBtn.addEventListener('click', async () => { // Renamed button
+    if (!confirm("从 Worker 恢复将覆盖当前所有本地条目。确定要继续吗？")) {
+      return;
+    }
+    workerStatus.textContent = '正在从 Worker 恢复...';
+    workerStatus.style.color = 'orange';
+    try {
+      const restoredEntries = await fetchWorker('restore', 'GET'); // Expects JSON array
+
+      if (!Array.isArray(restoredEntries)) {
+        throw new Error("从 Worker 收到的数据格式无效。");
+      }
+
+      await chrome.storage.local.set({ entries: restoredEntries });
+      workerStatus.textContent = '成功从 Worker 恢复！';
+      workerStatus.style.color = 'green';
+      alert("恢复成功！关闭选项页后，请重新打开扩展程序图标以查看更新。");
+
+    } catch (error) {
+      console.error("Error restoring via Worker:", error);
+      workerStatus.textContent = `恢复失败: ${error.message}`;
+      workerStatus.style.color = 'red';
+    }
+  });
+
+  // Load config on page load
+  loadWorkerConfig();
 });
